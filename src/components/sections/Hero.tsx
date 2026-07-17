@@ -124,7 +124,7 @@ export default function Hero() {
       )}
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
+      <div className="relative z-10 mx-auto max-w-4xl px-4 pt-16 text-center md:pt-20">
 
 
         <motion.h1
