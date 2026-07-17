@@ -59,9 +59,39 @@ export async function createContact(
     };
   }
 
-  // TODO: In futuro integrare invio email o salvataggio DB
-  if (process.env.NODE_ENV === "development") {
-    console.log("Nuovo contatto:", { name, email, message });
+  // Invia email al proprietario tramite Resend
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const OWNER_EMAIL = process.env.OWNER_EMAIL || "dipalmagabriele2@gmail.com";
+  const FROM_EMAIL = process.env.EMAIL_FROM || "onboarding@resend.dev";
+
+  if (RESEND_API_KEY) {
+    try {
+      const { Resend } = await import("resend");
+      const resend = new Resend(RESEND_API_KEY);
+
+      await resend.emails.send({
+        from: `Suraja Cafè <${FROM_EMAIL}>`,
+        to: OWNER_EMAIL,
+        subject: `📩 Nuovo messaggio da ${name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #FAF8F5; border-radius: 16px;">
+            <div style="background: linear-gradient(135deg, #9DC88D, #6B8E23); padding: 20px; border-radius: 12px 12px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 22px;">📩 Nuovo Messaggio</h1>
+              <p style="color: rgba(255,255,255,0.8); margin: 4px 0 0;">Suraja Cafè Vegan — Arcore</p>
+            </div>
+            <div style="background: white; padding: 24px; border-radius: 0 0 12px 12px;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="padding: 8px 0; color: #5C4033; font-weight: 600; width: 120px;">Nome</td><td style="padding: 8px 0; color: #5C4033;">${name}</td></tr>
+                <tr><td style="padding: 8px 0; color: #5C4033; font-weight: 600;">Email</td><td style="padding: 8px 0; color: #5C4033;"><a href="mailto:${email}" style="color: #7DAF6B;">${email}</a></td></tr>
+                <tr><td style="padding: 8px 0; color: #5C4033; font-weight: 600; vertical-align: top;">Messaggio</td><td style="padding: 8px 0; color: #5C4033;">${message}</td></tr>
+              </table>
+            </div>
+          </div>
+        `,
+      });
+    } catch (error) {
+      console.error("Errore invio email contatto:", error);
+    }
   }
 
   return {
