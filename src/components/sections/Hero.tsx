@@ -54,7 +54,7 @@ export default function Hero() {
 
   return (
     <section
-      className="relative flex min-h-[40vh] items-start justify-center overflow-hidden pb-12 pt-24 md:min-h-[32vh] md:items-center md:pb-10 md:pt-20 lg:min-h-[24vh]"
+      className="relative flex min-h-[50vh] items-start justify-center overflow-hidden pb-16 pt-20 md:min-h-[38vh] md:items-center md:pb-12 md:pt-0 lg:min-h-[28vh]"
       aria-label="Hero"
     >
       {/* Background Image con Ken Burns */}
@@ -145,7 +145,7 @@ export default function Hero() {
           initial={a2.initial}
           animate={a2.animate}
           transition={a2.transition}
-          className="text-3xl font-bold leading-tight text-white md:text-4xl lg:text-5xl"
+          className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl"
         >
           Il gusto del
           <br />
