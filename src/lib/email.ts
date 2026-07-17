@@ -33,9 +33,11 @@ export async function sendConfirmationEmails(
   let clientOk = false;
 
   if (!RESEND_API_KEY) {
-    console.log("Email not sent — RESEND_API_KEY not configured");
+    console.log("❌ Email NON inviata — RESEND_API_KEY non configurata");
+    console.log("   Devi impostarla su Vercel → Settings → Environment Variables");
     return { ownerOk, clientOk };
   }
+  console.log("📧 RESEND_API_KEY configurata, invio email in corso...");
 
   const resend = new Resend(RESEND_API_KEY);
   const dateFormatted = formatDate(booking.booking_date);
