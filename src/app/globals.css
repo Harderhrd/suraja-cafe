@@ -31,7 +31,7 @@
 ::-webkit-scrollbar-thumb { background: var(--color-sage); border-radius: 4px; }
 
 /* Smooth scroll */
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
 
 body {
   background: var(--color-cream);

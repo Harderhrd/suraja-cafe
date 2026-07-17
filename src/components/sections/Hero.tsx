@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 
 // Unsplash: cozy café/restaurant interior
 const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1920&q=80";
+  "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200&q=80";
 
 type AnimConfig = {
   initial: Record<string, number>;
@@ -54,7 +54,7 @@ export default function Hero() {
 
   return (
     <section
-      className="relative flex min-h-[80vh] items-start justify-center overflow-hidden md:min-h-[75vh] md:items-center lg:min-h-[70vh]"
+      className="relative flex min-h-[80vh] items-start justify-center overflow-hidden pb-20 pt-28 md:min-h-[75vh] md:items-center md:pb-24 md:pt-0 lg:min-h-[70vh]"
       aria-label="Hero"
     >
       {/* Background Image con Ken Burns */}
@@ -99,35 +99,32 @@ export default function Hero() {
         />
       )}
 
-      {/* Decorative gradient orbs */}
+      {/* Decorative gradient orbs — desktop only for performance */}
       {!prefersReduced && (
-        <>
+        <div className="hidden md:block" aria-hidden="true">
           <motion.span
             className="absolute -left-32 -top-32 h-[30rem] w-[30rem] rounded-full opacity-20 blur-[120px]"
             style={{ background: "radial-gradient(circle, #9DC88D, transparent)" }}
             animate={{ x: [0, 50, 0], y: [0, -30, 0], scale: [1, 1.15, 1] }}
             transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-            aria-hidden="true"
           />
           <motion.span
             className="absolute -bottom-40 -right-40 h-[35rem] w-[35rem] rounded-full opacity-20 blur-[120px]"
             style={{ background: "radial-gradient(circle, #6B8E23, transparent)" }}
             animate={{ x: [0, -60, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }}
             transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-            aria-hidden="true"
           />
           <motion.span
             className="absolute left-1/4 top-1/3 h-64 w-64 rounded-full opacity-10 blur-[100px]"
             style={{ background: "radial-gradient(circle, #C5E3B8, transparent)" }}
             animate={{ y: [0, -50, 0], opacity: [0.1, 0.25, 0.1] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            aria-hidden="true"
           />
-        </>
+        </div>
       )}
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-4xl px-4 pt-28 text-center md:pt-0 lg:pt-0">
+      <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
         {/* Badge */}
         <motion.div
           initial={a0.initial}
