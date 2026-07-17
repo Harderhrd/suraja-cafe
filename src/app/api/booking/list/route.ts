@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const date = searchParams.get("date") || undefined;
     const status = searchParams.get("status") || undefined;
 
-    const reservations = getReservations({ date, status });
+    const reservations = await getReservations({ date, status });
 
     return NextResponse.json({ reservations });
   } catch (error) {

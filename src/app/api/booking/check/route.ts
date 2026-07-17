@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const result = checkAvailability(date, time, guests);
+    const result = await checkAvailability(date, time, guests);
 
     return NextResponse.json(result);
   } catch (error) {

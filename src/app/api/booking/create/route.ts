@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verifica disponibilità — evita overbooking
-    const availability = checkAvailability(booking_date, booking_time, numGuests);
+    const availability = await checkAvailability(booking_date, booking_time, numGuests);
     if (!availability.available) {
       return NextResponse.json(
         {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Crea prenotazione
-    const reservation = createReservation({
+    const reservation = await createReservation({
       name: name.trim(),
       phone: phone.trim(),
       email: email?.trim() || "",

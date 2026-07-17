@@ -1,29 +1,56 @@
-import Database from "better-sqlite3";
+import initSqlJs, { type Database as SqlJsDatabase } from "sql.js";
+import fs from "fs";
 import path from "path";
 
-const DB_PATH = path.join(process.cwd(), "data", "reservations.db");
+const DB_PATH = path.join(
+  process.env.VERCEL ? "/tmp" : process.cwd(),
+  "data",
+  "reservations.db"
+);
 
-let db: Database.Database | null = null;
+let db: SqlJsDatabase | null = null;
+let initPromise: Promise<SqlJsDatabase> | null = null;
 
-export function getDb(): Database.Database {
-  if (!db) {
+export async function getDb(): Promise<SqlJsDatabase> {
+  if (db) return db;
+  if (initPromise) return initPromise;
+
+  initPromise = (async () => {
+    const SQL = await initSqlJs();
+
     // Crea la cartella data se non esiste
-    const fs = require("fs");
     const dir = path.dirname(DB_PATH);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    db = new Database(DB_PATH);
-    db.pragma("journal_mode = WAL");
-    db.pragma("foreign_keys = ON");
+    // Carica database esistente o creane uno nuovo
+    if (fs.existsSync(DB_PATH)) {
+      const buffer = fs.readFileSync(DB_PATH);
+      db = new SQL.Database(buffer);
+    } else {
+      db = new SQL.Database();
+    }
+
+    db.run("PRAGMA journal_mode = WAL");
+    db.run("PRAGMA foreign_keys = ON");
     initSchema(db);
-  }
-  return db;
+    saveDb();
+    return db;
+  })();
+
+  return initPromise;
 }
 
-function initSchema(db: Database.Database) {
-    db.exec(`
+function saveDb() {
+  if (!db) return;
+  const data = db.export();
+  const buffer = Buffer.from(data);
+  fs.writeFileSync(DB_PATH, buffer);
+}
+
+function initSchema(db: SqlJsDatabase) {
+  db.run(`
     CREATE TABLE IF NOT EXISTS reservations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -54,21 +81,23 @@ export interface Reservation {
 
 const MAX_CAPACITY = 30;
 
-export function checkAvailability(
+export async function checkAvailability(
   date: string,
   time: string,
   guests: number
-): { available: boolean; remaining: number } {
-  const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT COALESCE(SUM(guests), 0) as total
-       FROM reservations
-       WHERE booking_date = ? AND booking_time = ? AND status = 'confermata'`
-    )
-    .get(date, time) as { total: number };
+): Promise<{ available: boolean; remaining: number }> {
+  const database = await getDb();
+  const result = database.exec(
+    `SELECT COALESCE(SUM(guests), 0) as total
+     FROM reservations
+     WHERE booking_date = ? AND booking_time = ? AND status = 'confermata'`,
+    [date, time]
+  );
 
-  const currentOccupancy = row.total;
+  const currentOccupancy =
+    result.length > 0 && result[0].values.length > 0
+      ? Number(result[0].values[0][0])
+      : 0;
   const remaining = MAX_CAPACITY - currentOccupancy;
 
   return {
@@ -77,7 +106,7 @@ export function checkAvailability(
   };
 }
 
-export function createReservation(data: {
+export async function createReservation(data: {
   name: string;
   phone: string;
   email: string;
@@ -85,33 +114,36 @@ export function createReservation(data: {
   booking_time: string;
   guests: number;
   allergies: string;
-}): Reservation {
-  const db = getDb();
-  const stmt = db.prepare(
+}): Promise<Reservation> {
+  const database = await getDb();
+  database.run(
     `INSERT INTO reservations (name, phone, email, booking_date, booking_time, guests, allergies)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      data.name,
+      data.phone,
+      data.email,
+      data.booking_date,
+      data.booking_time,
+      data.guests,
+      data.allergies,
+    ]
   );
-  const result = stmt.run(
-    data.name,
-    data.phone,
-    data.email,
-    data.booking_date,
-    data.booking_time,
-    data.guests,
-    data.allergies
+  saveDb();
+
+  const result = database.exec(
+    "SELECT * FROM reservations WHERE id = (SELECT last_insert_rowid())"
   );
-  return db
-    .prepare("SELECT * FROM reservations WHERE id = ?")
-    .get(result.lastInsertRowid) as Reservation;
+  return rowToReservation(result[0]);
 }
 
-export function getReservations(filters?: {
+export async function getReservations(filters?: {
   date?: string;
   status?: string;
-}): Reservation[] {
-  const db = getDb();
+}): Promise<Reservation[]> {
+  const database = await getDb();
   let query = "SELECT * FROM reservations WHERE 1=1";
-  const params: unknown[] = [];
+  const params: (string | number)[] = [];
 
   if (filters?.date) {
     query += " AND booking_date = ?";
@@ -123,13 +155,43 @@ export function getReservations(filters?: {
   }
 
   query += " ORDER BY booking_date DESC, booking_time DESC";
-  return db.prepare(query).all(...params) as Reservation[];
+  const results = database.exec(query, params);
+  return results.map((r) => rowToReservation(r));
 }
 
-export function cancelReservation(id: number): boolean {
-  const db = getDb();
-  const result = db
-    .prepare("UPDATE reservations SET status = 'cancellata' WHERE id = ?")
-    .run(id);
-  return result.changes > 0;
+export async function cancelReservation(id: number): Promise<boolean> {
+  const database = await getDb();
+  database.run("UPDATE reservations SET status = 'cancellata' WHERE id = ?", [
+    id,
+  ]);
+  saveDb();
+
+  const result = database.exec(
+    "SELECT changes() as changed"
+  );
+  const changed =
+    result.length > 0 && result[0].values.length > 0
+      ? Number(result[0].values[0][0])
+      : 0;
+  return changed > 0;
+}
+
+function rowToReservation(row: {
+  columns: string[];
+  values: unknown[][];
+}): Reservation {
+  const cols = row.columns;
+  const vals = row.values[0];
+  return {
+    id: vals[cols.indexOf("id")] as number,
+    name: vals[cols.indexOf("name")] as string,
+    phone: vals[cols.indexOf("phone")] as string,
+    email: vals[cols.indexOf("email")] as string,
+    booking_date: vals[cols.indexOf("booking_date")] as string,
+    booking_time: vals[cols.indexOf("booking_time")] as string,
+    guests: vals[cols.indexOf("guests")] as number,
+    allergies: vals[cols.indexOf("allergies")] as string,
+    status: vals[cols.indexOf("status")] as "confermata" | "cancellata",
+    created_at: vals[cols.indexOf("created_at")] as string,
+  };
 }

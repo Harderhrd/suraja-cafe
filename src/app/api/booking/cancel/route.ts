@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const ok = cancelReservation(id);
+    const ok = await cancelReservation(id);
 
     if (!ok) {
       return NextResponse.json(

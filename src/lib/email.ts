@@ -5,7 +5,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 // In sviluppo/test, possiamo usare l'email di default di Resend
 // In produzione, va verificato un dominio personalizzato
 const FROM_EMAIL = process.env.EMAIL_FROM || "onboarding@resend.dev";
-const OWNER_EMAIL = process.env.OWNER_EMAIL || "info@surajacafe.it";
+const OWNER_EMAIL = process.env.OWNER_EMAIL || "dipalmagabriele2@gmail.com";
 
 interface BookingDetails {
   name: string;

@@ -164,7 +164,8 @@ export default function BookingModal() {
 
           {/* Modal */}
           <motion.div
-            className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="relative z-10 flex w-full max-w-lg flex-col rounded-2xl bg-white shadow-2xl"
+            style={{ maxHeight: "90vh" }}
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -190,8 +191,8 @@ export default function BookingModal() {
               </button>
             </div>
 
-            {/* Body */}
-            <div className="p-6">
+            {/* Body — scrollabile */}
+            <div className="overflow-y-auto p-6">
               {step === "success" ? (
                 <div className="py-8 text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sage/20">
