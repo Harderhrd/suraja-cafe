@@ -8,6 +8,7 @@ import Recensioni from "@/components/sections/Recensioni";
 import Contatti from "@/components/sections/Contatti";
 import Footer from "@/components/sections/Footer";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import BookingModal from "@/components/ui/BookingModal";
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
       </main>
       <Footer />
       <WhatsAppButton />
+      <BookingModal />
     </>
   );
 }

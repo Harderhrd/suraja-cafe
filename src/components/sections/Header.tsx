@@ -51,6 +51,11 @@ export default function Header() {
     setIsMobileOpen(false);
   };
 
+  const handleBookingClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.dispatchEvent(new CustomEvent("open-booking"));
+  };
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
@@ -87,7 +92,7 @@ export default function Header() {
           ))}
           <Button
             variant={isScrolled ? "primary" : "outline"}
-            href="#contatti"
+            onClick={handleBookingClick}
             className="ml-2"
           >
             Prenota un Tavolo
@@ -144,7 +149,7 @@ export default function Header() {
                   {link.label}
                 </a>
               ))}
-              <Button variant="primary" href="#contatti" onClick={handleNavClick} className="mt-2">
+              <Button variant="primary" onClick={handleBookingClick} className="mt-2">
                 Prenota un Tavolo
               </Button>
             </div>
