@@ -56,11 +56,17 @@ export async function POST(request: NextRequest) {
       allergies: allergies?.trim() || "",
     });
 
-    // Invia email di notifica (proprietario) e conferma (cliente) in background
-    sendConfirmationEmails(reservation).catch(console.error);
+    // Invia email di notifica (proprietario) e conferma (cliente)
+    // NOTA: su Vercel le funzioni serverless NON possono eseguire codice dopo la risposta
+    // quindi DOBBIAMO aspettare che l'email parta prima di rispondere
+    const emailResult = await sendConfirmationEmails(reservation);
 
     return NextResponse.json(
-      { success: true, reservation },
+      {
+        success: true,
+        reservation,
+        email: emailResult, // Dice se le email sono state inviate o meno
+      },
       { status: 201 }
     );
   } catch (error) {
