@@ -125,21 +125,7 @@ export default function Hero() {
 
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
-        {/* Badge */}
-        <motion.div
-          initial={a0.initial}
-          animate={a0.animate}
-          transition={a0.transition}
-          className="mb-8 inline-block"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium tracking-wide text-white/80 backdrop-blur-sm sm:px-5 sm:py-2 sm:text-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sage opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-sage" />
-            </span>
-            Ristorante Vegano — Arcore, MB
-          </span>
-        </motion.div>
+
 
         <motion.h1
           initial={a2.initial}
