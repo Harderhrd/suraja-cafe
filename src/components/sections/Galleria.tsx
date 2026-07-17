@@ -6,12 +6,12 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 
 // Unsplash: foto reali di cibo vegano e interni
 const GALLERY_WITH_IMAGES = [
-  { id: 1, src: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80", alt: "Insalata vegana fresca", aspect: "aspect-[4/3]" },
-  { id: 2, src: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=80", alt: "Piatto vegano colorato", aspect: "aspect-[3/4]" },
-  { id: 3, src: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=600&q=80", alt: "Interno del locale accogliente", aspect: "aspect-[4/3]" },
-  { id: 4, src: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80", alt: "Dolci vegani artigianali", aspect: "aspect-[3/4]" },
-  { id: 5, src: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&q=80", alt: "Colazione vegana", aspect: "aspect-[4/3]" },
-  { id: 6, src: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80", alt: "Piatto vegetale gourmet", aspect: "aspect-[4/3]" },
+  { id: 1, src: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80", alt: "Insalata vegana fresca" },
+  { id: 2, src: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=80", alt: "Piatto vegano colorato" },
+  { id: 3, src: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=600&q=80", alt: "Interno del locale accogliente" },
+  { id: 4, src: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80", alt: "Dolci vegani artigianali" },
+  { id: 5, src: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&q=80", alt: "Colazione vegana" },
+  { id: 6, src: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80", alt: "Piatto vegetale gourmet" },
 ];
 
 export default function Galleria() {
@@ -66,7 +66,7 @@ export default function Galleria() {
             <motion.div
               key={image.id}
               variants={itemVariants}
-              className={`group relative overflow-hidden rounded-2xl shadow-md ${image.aspect}`}
+              className="group relative overflow-hidden rounded-2xl shadow-md aspect-[4/3]"
             >
               {/* Immagine reale */}
               <div

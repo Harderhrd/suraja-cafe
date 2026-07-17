@@ -54,7 +54,7 @@ export default function Hero() {
 
   return (
     <section
-      className="relative flex min-h-[80vh] items-start justify-center overflow-hidden pb-20 pt-28 md:min-h-[75vh] md:items-center md:pb-24 md:pt-0 lg:min-h-[70vh]"
+      className="relative flex min-h-[80vh] items-start justify-center overflow-hidden pb-20 pt-28 md:min-h-[65vh] md:items-center md:pb-24 md:pt-0 lg:min-h-[55vh]"
       aria-label="Hero"
     >
       {/* Background Image con Ken Burns */}

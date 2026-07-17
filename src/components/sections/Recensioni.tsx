@@ -78,7 +78,7 @@ export default function Recensioni() {
                   {RESTAURANT_INFO.reviewCount} recensioni su Google
                 </p>
                 <a
-                  href={RESTAURANT_INFO.googleMapsUrl}
+                  href={RESTAURANT_INFO.googleMapsReviewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sage-dark underline hover:text-olive"
@@ -103,7 +103,7 @@ export default function Recensioni() {
             </p>
             <Button
               variant="outline"
-              href={RESTAURANT_INFO.googleMapsUrl}
+              href={RESTAURANT_INFO.googleMapsReviewUrl}
             >
               Scrivi una Recensione
             </Button>
