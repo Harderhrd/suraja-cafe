@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { getSupabase } from "./supabase";
 
 export interface Reservation {
   id: number;
@@ -20,6 +20,7 @@ export async function checkAvailability(
   time: string,
   guests: number
 ): Promise<{ available: boolean; remaining: number }> {
+  const supabase = getSupabase();
   const { data: confirmed, error } = await supabase
     .from("reservations")
     .select("guests")
@@ -53,7 +54,8 @@ export async function createReservation(data: {
   booking_time: string;
   guests: number;
   allergies: string;
-}): Promise<Reservation> {
+  }): Promise<Reservation> {
+  const supabase = getSupabase();
   const { data: reservation, error } = await supabase
     .from("reservations")
     .insert({
@@ -81,6 +83,7 @@ export async function getReservations(filters?: {
   date?: string;
   status?: string;
 }): Promise<Reservation[]> {
+  const supabase = getSupabase();
   let query = supabase
     .from("reservations")
     .select("*")
@@ -105,6 +108,7 @@ export async function getReservations(filters?: {
 }
 
 export async function cancelReservation(id: number): Promise<boolean> {
+  const supabase = getSupabase();
   const { error } = await supabase
     .from("reservations")
     .update({ status: "cancellata" })
