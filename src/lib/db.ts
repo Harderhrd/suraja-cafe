@@ -1,70 +1,12 @@
-import initSqlJs, { type Database as SqlJsDatabase } from "sql.js";
 import fs from "fs";
 import path from "path";
 
-const DB_PATH = path.join(
-  process.env.VERCEL ? "/tmp" : process.cwd(),
-  "data",
-  "reservations.db"
-);
+// Directory scrivibile: /tmp su Vercel, ./data in locale
+const DATA_DIR = process.env.VERCEL
+  ? "/tmp/suraja-data"
+  : path.join(process.cwd(), "data");
 
-let db: SqlJsDatabase | null = null;
-let initPromise: Promise<SqlJsDatabase> | null = null;
-
-export async function getDb(): Promise<SqlJsDatabase> {
-  if (db) return db;
-  if (initPromise) return initPromise;
-
-  initPromise = (async () => {
-    const SQL = await initSqlJs();
-
-    // Crea la cartella data se non esiste
-    const dir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    // Carica database esistente o creane uno nuovo
-    if (fs.existsSync(DB_PATH)) {
-      const buffer = fs.readFileSync(DB_PATH);
-      db = new SQL.Database(buffer);
-    } else {
-      db = new SQL.Database();
-    }
-
-    db.run("PRAGMA journal_mode = WAL");
-    db.run("PRAGMA foreign_keys = ON");
-    initSchema(db);
-    saveDb();
-    return db;
-  })();
-
-  return initPromise;
-}
-
-function saveDb() {
-  if (!db) return;
-  const data = db.export();
-  const buffer = Buffer.from(data);
-  fs.writeFileSync(DB_PATH, buffer);
-}
-
-function initSchema(db: SqlJsDatabase) {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS reservations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      phone TEXT NOT NULL,
-      email TEXT DEFAULT '',
-      booking_date TEXT NOT NULL,
-      booking_time TEXT NOT NULL,
-      guests INTEGER NOT NULL CHECK(guests >= 1),
-      allergies TEXT DEFAULT '',
-      status TEXT NOT NULL DEFAULT 'confermata' CHECK(status IN ('confermata', 'cancellata')),
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    )
-  `);
-}
+const DB_FILE = path.join(DATA_DIR, "reservations.json");
 
 export interface Reservation {
   id: number;
@@ -81,23 +23,51 @@ export interface Reservation {
 
 const MAX_CAPACITY = 30;
 
+function ensureDir() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+}
+
+function readDb(): Reservation[] {
+  ensureDir();
+  if (!fs.existsSync(DB_FILE)) {
+    fs.writeFileSync(DB_FILE, "[]", "utf-8");
+    return [];
+  }
+  try {
+    const raw = fs.readFileSync(DB_FILE, "utf-8");
+    return JSON.parse(raw) as Reservation[];
+  } catch {
+    return [];
+  }
+}
+
+function writeDb(data: Reservation[]) {
+  ensureDir();
+  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf-8");
+}
+
+let nextId = 1;
+
+function getNextId(reservations: Reservation[]): number {
+  if (reservations.length === 0) return 1;
+  return Math.max(...reservations.map((r) => r.id)) + 1;
+}
+
 export async function checkAvailability(
   date: string,
   time: string,
   guests: number
 ): Promise<{ available: boolean; remaining: number }> {
-  const database = await getDb();
-  const result = database.exec(
-    `SELECT COALESCE(SUM(guests), 0) as total
-     FROM reservations
-     WHERE booking_date = ? AND booking_time = ? AND status = 'confermata'`,
-    [date, time]
+  const reservations = readDb();
+  const confirmed = reservations.filter(
+    (r) =>
+      r.booking_date === date &&
+      r.booking_time === time &&
+      r.status === "confermata"
   );
-
-  const currentOccupancy =
-    result.length > 0 && result[0].values.length > 0
-      ? Number(result[0].values[0][0])
-      : 0;
+  const currentOccupancy = confirmed.reduce((sum, r) => sum + r.guests, 0);
   const remaining = MAX_CAPACITY - currentOccupancy;
 
   return {
@@ -115,83 +85,56 @@ export async function createReservation(data: {
   guests: number;
   allergies: string;
 }): Promise<Reservation> {
-  const database = await getDb();
-  database.run(
-    `INSERT INTO reservations (name, phone, email, booking_date, booking_time, guests, allergies)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [
-      data.name,
-      data.phone,
-      data.email,
-      data.booking_date,
-      data.booking_time,
-      data.guests,
-      data.allergies,
-    ]
-  );
-  saveDb();
+  const reservations = readDb();
+  const id = getNextId(reservations);
 
-  const result = database.exec(
-    "SELECT * FROM reservations WHERE id = (SELECT last_insert_rowid())"
-  );
-  return rowToReservation(result[0]);
+  const reservation: Reservation = {
+    id,
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    booking_date: data.booking_date,
+    booking_time: data.booking_time,
+    guests: data.guests,
+    allergies: data.allergies,
+    status: "confermata",
+    created_at: new Date().toISOString(),
+  };
+
+  reservations.push(reservation);
+  writeDb(reservations);
+  return reservation;
 }
 
 export async function getReservations(filters?: {
   date?: string;
   status?: string;
 }): Promise<Reservation[]> {
-  const database = await getDb();
-  let query = "SELECT * FROM reservations WHERE 1=1";
-  const params: (string | number)[] = [];
+  let reservations = readDb();
 
   if (filters?.date) {
-    query += " AND booking_date = ?";
-    params.push(filters.date);
+    reservations = reservations.filter((r) => r.booking_date === filters.date);
   }
   if (filters?.status) {
-    query += " AND status = ?";
-    params.push(filters.status);
+    reservations = reservations.filter((r) => r.status === filters.status);
   }
 
-  query += " ORDER BY booking_date DESC, booking_time DESC";
-  const results = database.exec(query, params);
-  return results.map((r) => rowToReservation(r));
+  // Ordina per data e ora decrescenti
+  reservations.sort((a, b) => {
+    const dateCmp = b.booking_date.localeCompare(a.booking_date);
+    if (dateCmp !== 0) return dateCmp;
+    return b.booking_time.localeCompare(a.booking_time);
+  });
+
+  return reservations;
 }
 
 export async function cancelReservation(id: number): Promise<boolean> {
-  const database = await getDb();
-  database.run("UPDATE reservations SET status = 'cancellata' WHERE id = ?", [
-    id,
-  ]);
-  saveDb();
+  const reservations = readDb();
+  const idx = reservations.findIndex((r) => r.id === id);
+  if (idx === -1) return false;
 
-  const result = database.exec(
-    "SELECT changes() as changed"
-  );
-  const changed =
-    result.length > 0 && result[0].values.length > 0
-      ? Number(result[0].values[0][0])
-      : 0;
-  return changed > 0;
-}
-
-function rowToReservation(row: {
-  columns: string[];
-  values: unknown[][];
-}): Reservation {
-  const cols = row.columns;
-  const vals = row.values[0];
-  return {
-    id: vals[cols.indexOf("id")] as number,
-    name: vals[cols.indexOf("name")] as string,
-    phone: vals[cols.indexOf("phone")] as string,
-    email: vals[cols.indexOf("email")] as string,
-    booking_date: vals[cols.indexOf("booking_date")] as string,
-    booking_time: vals[cols.indexOf("booking_time")] as string,
-    guests: vals[cols.indexOf("guests")] as number,
-    allergies: vals[cols.indexOf("allergies")] as string,
-    status: vals[cols.indexOf("status")] as "confermata" | "cancellata",
-    created_at: vals[cols.indexOf("created_at")] as string,
-  };
+  reservations[idx].status = "cancellata";
+  writeDb(reservations);
+  return true;
 }
