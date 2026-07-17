@@ -12,6 +12,7 @@ const TIME_SLOTS = {
 type FormData = {
   name: string;
   phone: string;
+  email: string;
   booking_date: string;
   booking_time: string;
   guests: number;
@@ -32,6 +33,7 @@ export default function BookingModal() {
   const [form, setForm] = useState<FormData>({
     name: "",
     phone: "",
+    email: "",
     booking_date: "",
     booking_time: "",
     guests: 2,
@@ -60,7 +62,7 @@ export default function BookingModal() {
     setTimeout(() => {
       setStep("form");
       setMessage("");
-      setForm({ name: "", phone: "", booking_date: "", booking_time: "", guests: 2, allergies: "" });
+      setForm({ name: "", phone: "", email: "", booking_date: "", booking_time: "", guests: 2, allergies: "" });
     }, 300);
   }, []);
 
@@ -239,6 +241,20 @@ export default function BookingModal() {
                       value={form.phone}
                       onChange={(e) => updateField("phone", e.target.value)}
                       placeholder="+39 3XX XXX XXXX"
+                      className="w-full rounded-xl border border-sage/20 px-4 py-2.5 text-sm text-brown placeholder-brown-light/50 outline-none transition-colors focus:border-sage focus:ring-2 focus:ring-sage/20"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-brown">
+                      Email <span className="text-brown-light/50">(per ricevere conferma)</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => updateField("email", e.target.value)}
+                      placeholder="tua@email.com"
                       className="w-full rounded-xl border border-sage/20 px-4 py-2.5 text-sm text-brown placeholder-brown-light/50 outline-none transition-colors focus:border-sage focus:ring-2 focus:ring-sage/20"
                     />
                   </div>

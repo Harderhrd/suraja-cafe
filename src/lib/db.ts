@@ -23,11 +23,12 @@ export function getDb(): Database.Database {
 }
 
 function initSchema(db: Database.Database) {
-  db.exec(`
+    db.exec(`
     CREATE TABLE IF NOT EXISTS reservations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       phone TEXT NOT NULL,
+      email TEXT DEFAULT '',
       booking_date TEXT NOT NULL,
       booking_time TEXT NOT NULL,
       guests INTEGER NOT NULL CHECK(guests >= 1),
@@ -42,6 +43,7 @@ export interface Reservation {
   id: number;
   name: string;
   phone: string;
+  email: string;
   booking_date: string;
   booking_time: string;
   guests: number;
@@ -78,6 +80,7 @@ export function checkAvailability(
 export function createReservation(data: {
   name: string;
   phone: string;
+  email: string;
   booking_date: string;
   booking_time: string;
   guests: number;
@@ -85,12 +88,13 @@ export function createReservation(data: {
 }): Reservation {
   const db = getDb();
   const stmt = db.prepare(
-    `INSERT INTO reservations (name, phone, booking_date, booking_time, guests, allergies)
-     VALUES (?, ?, ?, ?, ?, ?)`
+    `INSERT INTO reservations (name, phone, email, booking_date, booking_time, guests, allergies)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
   );
   const result = stmt.run(
     data.name,
     data.phone,
+    data.email,
     data.booking_date,
     data.booking_time,
     data.guests,
