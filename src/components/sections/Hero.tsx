@@ -54,7 +54,7 @@ export default function Hero() {
 
   return (
     <section
-      className="relative flex min-h-[50vh] items-start justify-center overflow-hidden pb-16 pt-20 md:min-h-[38vh] md:items-center md:pb-12 md:pt-0 lg:min-h-[28vh]"
+      className="relative flex min-h-screen items-start justify-center overflow-hidden pb-16 pt-20 md:items-center md:pb-12 md:pt-0"
       aria-label="Hero"
     >
       {/* Background Image con Ken Burns */}
@@ -124,7 +124,7 @@ export default function Hero() {
       )}
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-4xl px-4 pt-16 text-center md:pt-20">
+      <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
 
 
         <motion.h1
