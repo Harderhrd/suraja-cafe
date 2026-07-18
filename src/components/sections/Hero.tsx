@@ -131,7 +131,7 @@ export default function Hero() {
           initial={a2.initial}
           animate={a2.animate}
           transition={a2.transition}
-          className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl"
+          className="text-5xl font-bold leading-tight text-white md:text-7xl lg:text-8xl"
         >
           Il gusto del
           <br />
@@ -145,7 +145,7 @@ export default function Hero() {
           initial={a35.initial}
           animate={a35.animate}
           transition={a35.transition}
-          className="mx-auto mt-6 max-w-2xl text-base text-white/70 md:text-xl"
+          className="mx-auto mt-8 max-w-2xl text-lg text-white/70 md:text-xl"
         >
           Suraja Cafè Vegan — Via Roma, 4, Arcore
         </motion.p>
@@ -155,9 +155,9 @@ export default function Hero() {
           initial={a45.initial}
           animate={a45.animate}
           transition={a45.transition}
-          className="mt-4"
+          className="mt-6"
         >
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white/80 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-3 rounded-full bg-white/10 px-6 py-3 text-base text-white/80 backdrop-blur-sm md:gap-2 md:px-4 md:py-2 md:text-sm">
             <span className="text-amber-400">★★★★★</span>
             <span className="font-semibold text-white">4.6</span>
             <span className="text-white/50">·</span>
@@ -169,7 +169,7 @@ export default function Hero() {
           initial={a6.initial}
           animate={a6.animate}
           transition={a6.transition}
-          className="mt-10"
+          className="mt-12"
         >
           <motion.div
             animate={
@@ -188,7 +188,7 @@ export default function Hero() {
             <Button
               variant="primary"
               onClick={() => window.dispatchEvent(new CustomEvent("open-booking"))}
-              className="px-10 py-4 text-lg shadow-xl md:px-12 md:py-5 md:text-xl"
+              className="px-12 py-5 text-xl shadow-xl md:px-14 md:py-6 md:text-2xl"
             >
               Prenota un Tavolo
             </Button>
