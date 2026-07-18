@@ -131,7 +131,7 @@ export default function Hero() {
           initial={a2.initial}
           animate={a2.animate}
           transition={a2.transition}
-          className="text-5xl font-bold leading-tight text-white md:text-7xl lg:text-8xl"
+          className="text-5xl font-bold leading-tight text-white md:text-5xl lg:text-6xl"
         >
           Il gusto del
           <br />
