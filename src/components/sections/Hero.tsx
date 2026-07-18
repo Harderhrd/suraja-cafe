@@ -54,7 +54,7 @@ export default function Hero() {
 
   return (
     <section
-      className="relative flex min-h-screen items-start justify-center overflow-hidden pb-16 pt-20 md:items-center md:pb-12 md:pt-0"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden pb-16 pt-20 md:pb-12 md:pt-0"
       aria-label="Hero"
     >
       {/* Background Image con Ken Burns */}
@@ -188,7 +188,7 @@ export default function Hero() {
             <Button
               variant="primary"
               onClick={() => window.dispatchEvent(new CustomEvent("open-booking"))}
-              className="text-base shadow-xl md:text-lg"
+              className="px-10 py-4 text-lg shadow-xl md:px-12 md:py-5 md:text-xl"
             >
               Prenota un Tavolo
             </Button>
